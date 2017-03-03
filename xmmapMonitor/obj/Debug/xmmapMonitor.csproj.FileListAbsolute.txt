@@ -14,6 +14,3 @@ E:\visualstudio2010Projects\xmmapMonitor\xmmapMonitor\obj\Debug\xmmapMonitor.csp
 E:\visualstudio2010Projects\xmmapMonitor\xmmapMonitor\obj\Debug\xmmapMonitor.exe
 E:\visualstudio2010Projects\xmmapMonitor\xmmapMonitor\obj\Debug\xmmapMonitor.pdb
 E:\visualstudio2010Projects\xmmapMonitor\xmmapMonitor\obj\Debug\xmmapMonitor.csprojResolveAssemblyReference.cache
-E:\GitHub\Monitor\xmmapMonitor\bin\Debug\xmmapMonitor.exe.config
-E:\GitHub\Monitor\xmmapMonitor\obj\Debug\xmmapMonitor.exe
-E:\GitHub\Monitor\xmmapMonitor\obj\Debug\xmmapMonitor.pdb

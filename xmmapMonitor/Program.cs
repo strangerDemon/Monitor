@@ -20,6 +20,9 @@ namespace xmmapMonitor
                 new ssmapMonitor() 
             };
             ServiceBase.Run(ServicesToRun);
+
+            //ssmapMonitor monitor = new ssmapMonitor();
+            //monitor.OnStart();
         }
     }
 }
