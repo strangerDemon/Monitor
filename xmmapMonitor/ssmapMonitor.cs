@@ -36,6 +36,8 @@ namespace xmmapMonitor
         int mapTimeInterval = 300000;
         int dbTimeInterval = 300000;
 
+        int count = 5;
+
         string toAddress;//收件人列表
         string MessageSubject = "";//主题
         string MessageBody = "";//正文
@@ -51,7 +53,7 @@ namespace xmmapMonitor
 
         //发送邮件机制 失败只发送一次，直到下一次监测到成功后重置
         static Dictionary<string, bool> isMessage = new Dictionary<string, bool>();
-
+        static Dictionary<string, int> isMessageCount = new Dictionary<string, int>();//计数
         #endregion
 
         public ssmapMonitor()
@@ -66,11 +68,11 @@ namespace xmmapMonitor
             init();
             if (webUrl != null)
             {
-                //ThreadPool.QueueUserWorkItem(webTimeThread, "webTime");
+                ThreadPool.QueueUserWorkItem(webTimeThread, "webTime");
             }
             if (mapSourceLink != null)
             {
-                // ThreadPool.QueueUserWorkItem(mapTimeThread, "mapTime");
+                ThreadPool.QueueUserWorkItem(mapTimeThread, "mapTime");
             }
             if (dataBase != null)
             {
@@ -103,6 +105,16 @@ namespace xmmapMonitor
 
             dbTimeInterval = timeInterval("dbTimeInterval");
 
+            //连续次数
+            try
+            {
+                count = (ConfigurationManager.AppSettings["count"].ToString() == null || ConfigurationManager.AppSettings["count"].ToString() == "") ? 5 : int.Parse(ConfigurationManager.AppSettings["count"].ToString());
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.RecordExceptionToFile(ex);
+                count = 5;
+            }
             //邮件
             toAddress = ConfigurationManager.AppSettings["toAddress"].ToString() == null ? "" : ConfigurationManager.AppSettings["toAddress"].ToString();
 
@@ -141,14 +153,17 @@ namespace xmmapMonitor
             foreach (string url in webUrl)
             {//网站状态
                 isMessage.Add(url, true);
+                isMessageCount.Add(url,count);
             }
             foreach (string link in mapSourceLink)//地图源状态
             {
                 isMessage.Add(link, true);
+                isMessageCount.Add(link, count);
             }
             foreach (string db in dataBase)//数据库状态
             {
                 isMessage.Add(db, true);
+                isMessageCount.Add(db, count);
             }
         }
         //添加监测路径
@@ -207,16 +222,18 @@ namespace xmmapMonitor
                     System.IO.Stream _Stream = _HttpWebResponse.GetResponseStream();//得到回写的字节流
                     _HttpWebResponse.Close();
                     isMessage[webUrl[i]] = true;
+                    isMessageCount[webUrl[i]] = count;
                 }
                 catch (Exception ex)
                 {
-                    ErrorLog.RecordExceptionToFile(ex);
-                    if (isMessage[webUrl[i]] == false)
+                    if (isMessage[webUrl[i]] == false || isMessageCount[webUrl[i]]>0)
                     {
+                        isMessageCount[webUrl[i]]--;
                         continue;
                     }
                     sendMessage("网站链接失败 \r\n<br/>\t" + webName[i] + "\r\n<br/>\t" + webUrl[i] + "\r\n<br/>\t" + ex.ToString());
                     isMessage[webUrl[i]] = false;
+                    ErrorLog.RecordExceptionToFile(ex);
                 }
             }
             return;
@@ -237,11 +254,13 @@ namespace xmmapMonitor
                     System.IO.Stream _Stream = _HttpWebResponse.GetResponseStream();//得到回写的字节流
                     _HttpWebResponse.Close();
                     isMessage[mapSourceLink[i]] = true;
+                    isMessageCount[mapSourceLink[i]] = count;
                 }
                 catch (Exception ex)
-                { 
-                    if (isMessage[mapSourceLink[i]] == false)
+                {
+                    if (isMessage[mapSourceLink[i]] == false || isMessageCount[mapSourceLink[i]] > 0)
                     {
+                        isMessageCount[mapSourceLink[i]]--;
                         continue;
                     }
                     sendMessage("地图源链接失败 \r\n<br/>\t" + mapSourceLink[i] + "\r\n<br/>\t" + ex.ToString());
@@ -264,12 +283,14 @@ namespace xmmapMonitor
                     OracleConnection oracleConnection = new OracleConnection(dataBase[i]);
                     oracleConnection.Open();
                     isMessage[dataBase[i]] = true;
+                    isMessageCount[dataBase[i]] = count;
                     oracleConnection.Close();
                 }
                 catch (Exception ex)
                 {
-                    if (isMessage[dataBase[i]] == false)
+                    if (isMessage[dataBase[i]] == false || isMessageCount[dataBase[i]] > 0)
                     {
+                        isMessageCount[dataBase[i]]--;
                         continue;
                     }
                     sendMessage("数据库打开失败 \r\n<br/>\t" + dataBase[i] + "\r\n<br/>\t" + ex.ToString());
@@ -303,7 +324,7 @@ namespace xmmapMonitor
                 sc.UseDefaultCredentials = false;
                 //sc.EnableSsl = true; 
                 sc.Credentials = new System.Net.NetworkCredential(emailAddress, emailPs); //指定登录服务器的用户名和密码 
-                //sc.Send(message);  //发送邮件 
+                sc.Send(message);  //发送邮件 
             }
             catch (Exception ex)
             {
