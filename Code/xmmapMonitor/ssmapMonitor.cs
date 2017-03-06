@@ -214,35 +214,37 @@ namespace xmmapMonitor
             //监测网站
             for (int i = 0; i < webUrl.Length; i++)
             {
-                try
+                lock (this)
                 {
-                    HttpWebRequest hwr = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(webUrl[i]);
-                    System.Net.HttpWebRequest _HttpWebRequest = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(webUrl[i]);
-                    System.Net.HttpWebResponse _HttpWebResponse = (System.Net.HttpWebResponse)_HttpWebRequest.GetResponse();
-                    System.IO.Stream _Stream = _HttpWebResponse.GetResponseStream();//得到回写的字节流
-                    _HttpWebResponse.Close();
-                    isMessage[webUrl[i]] = true;
-                    isMessageCount[webUrl[i]] = count;
-                }
-                catch (Exception ex)
-                {
-                    if (isMessage[webUrl[i]] == false || isMessageCount[webUrl[i]]>0)
-                    {
-                        isMessageCount[webUrl[i]] = isMessageCount[webUrl[i]] <= 0 ? 0 : isMessageCount[webUrl[i]]--;//防止int越界
-                        continue;
-                    }
                     try
                     {
-                        sendMessage("网站链接失败 \r\n<br/>\t" + webName[i] + "\r\n<br/>\t" + webUrl[i] + "\r\n<br/>\t" + ex.ToString());
+                        HttpWebRequest hwr = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(webUrl[i]);
+                        System.Net.HttpWebRequest _HttpWebRequest = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(webUrl[i]);
+                        System.Net.HttpWebResponse _HttpWebResponse = (System.Net.HttpWebResponse)_HttpWebRequest.GetResponse();
+                        System.IO.Stream _Stream = _HttpWebResponse.GetResponseStream();//得到回写的字节流
+                        _HttpWebResponse.Close();
+                        isMessage[webUrl[i]] = true;
+                        isMessageCount[webUrl[i]] = count;
                     }
-                    catch (IndexOutOfRangeException ioorex)
+                    catch (Exception ex)
                     {
-                        sendMessage("网站链接失败 \r\n<br/>\t该网页未设定网页名\r\n<br/>\t" + webUrl[i] + "\r\n<br/>\t" + ex.ToString());
-                        ErrorLog.RecordExceptionToFile(ioorex);
+                        if (isMessage[webUrl[i]] == false || isMessageCount[webUrl[i]] > 0)
+                        {
+                            isMessageCount[webUrl[i]] = isMessageCount[webUrl[i]] <= 0 ? 0 : isMessageCount[webUrl[i]]-1;//防止int越界 isMessageCount[webUrl[i]]-- 为地址的减 = =
+                            continue;
+                        }
+                        try
+                        {
+                            sendMessage("网站链接失败 \r\n<br/>\t" + webName[i] + "\r\n<br/>\t" + webUrl[i] + "\r\n<br/>\t" + ex.ToString());
+                        }
+                        catch (IndexOutOfRangeException ioorex)
+                        {
+                            sendMessage("网站链接失败 \r\n<br/>\t该网页未设定网页名\r\n<br/>\t" + webUrl[i] + "\r\n<br/>\t" + ex.ToString());
+                            ErrorLog.RecordExceptionToFile(ioorex);
+                        }
+                        isMessage[webUrl[i]] = false;
+                        ErrorLog.RecordExceptionToFile(ex);
                     }
-                   
-                    isMessage[webUrl[i]] = false;
-                    ErrorLog.RecordExceptionToFile(ex);
                 }
             }
             return;
@@ -255,26 +257,29 @@ namespace xmmapMonitor
             //监测网站
             for (int i = 0; i < mapSourceLink.Length; i++)
             {
-                try
+                lock (this)
                 {
-                    HttpWebRequest hwr = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(mapSourceLink[i]);
-                    System.Net.HttpWebRequest _HttpWebRequest = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(mapSourceLink[i]);
-                    System.Net.HttpWebResponse _HttpWebResponse = (System.Net.HttpWebResponse)_HttpWebRequest.GetResponse();
-                    System.IO.Stream _Stream = _HttpWebResponse.GetResponseStream();//得到回写的字节流
-                    _HttpWebResponse.Close();
-                    isMessage[mapSourceLink[i]] = true;
-                    isMessageCount[mapSourceLink[i]] = count;
-                }
-                catch (Exception ex)
-                {
-                    if (isMessage[mapSourceLink[i]] == false || isMessageCount[mapSourceLink[i]] > 0)
+                    try
                     {
-                        isMessageCount[mapSourceLink[i]]=isMessageCount[mapSourceLink[i]]<=0?0:isMessageCount[mapSourceLink[i]]--;//防止int越界
-                        continue;
+                        HttpWebRequest hwr = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(mapSourceLink[i]);
+                        System.Net.HttpWebRequest _HttpWebRequest = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(mapSourceLink[i]);
+                        System.Net.HttpWebResponse _HttpWebResponse = (System.Net.HttpWebResponse)_HttpWebRequest.GetResponse();
+                        System.IO.Stream _Stream = _HttpWebResponse.GetResponseStream();//得到回写的字节流
+                        _HttpWebResponse.Close();
+                        isMessage[mapSourceLink[i]] = true;
+                        isMessageCount[mapSourceLink[i]] = count;
                     }
-                    sendMessage("地图源链接失败 \r\n<br/>\t" + mapSourceLink[i] + "\r\n<br/>\t" + ex.ToString());
-                    isMessage[mapSourceLink[i]] = false;
-                    ErrorLog.RecordExceptionToFile(ex);
+                    catch (Exception ex)
+                    {
+                        if (isMessage[mapSourceLink[i]] == false || isMessageCount[mapSourceLink[i]] > 0)
+                        {
+                            isMessageCount[mapSourceLink[i]] = isMessageCount[mapSourceLink[i]] <= 0 ? 0 : isMessageCount[mapSourceLink[i]]-1;//防止int越界
+                            continue;
+                        }
+                        sendMessage("地图源链接失败 \r\n<br/>\t" + mapSourceLink[i] + "\r\n<br/>\t" + ex.ToString());
+                        isMessage[mapSourceLink[i]] = false;
+                        ErrorLog.RecordExceptionToFile(ex);
+                    }
                 }
             }
             return;
@@ -287,24 +292,27 @@ namespace xmmapMonitor
             //监测网站
             for (int i = 0; i < dataBase.Length; i++)
             {
-                try
+                lock (this)
                 {
-                    OracleConnection oracleConnection = new OracleConnection(dataBase[i]);
-                    oracleConnection.Open();
-                    isMessage[dataBase[i]] = true;
-                    isMessageCount[dataBase[i]] = count;
-                    oracleConnection.Close();
-                }
-                catch (Exception ex)
-                {
-                    if (isMessage[dataBase[i]] == false || isMessageCount[dataBase[i]] > 0)
+                    try
                     {
-                        isMessageCount[dataBase[i]]=isMessageCount[dataBase[i]] <= 0 ? 0 : isMessageCount[dataBase[i]]--;//防止int越界
-                        continue;
+                        OracleConnection oracleConnection = new OracleConnection(dataBase[i]);
+                        oracleConnection.Open();
+                        isMessage[dataBase[i]] = true;
+                        isMessageCount[dataBase[i]] = count;
+                        oracleConnection.Close();
                     }
-                    sendMessage("数据库打开失败 \r\n<br/>\t" + dataBase[i] + "\r\n<br/>\t" + ex.ToString());
-                    isMessage[dataBase[i]] = false;
-                    ErrorLog.RecordExceptionToFile(ex);
+                    catch (Exception ex)
+                    {
+                        if (isMessage[dataBase[i]] == false || isMessageCount[dataBase[i]] > 0)
+                        {
+                            isMessageCount[dataBase[i]] = isMessageCount[dataBase[i]] <= 0 ? 0 : isMessageCount[dataBase[i]]-1;//防止int越界
+                            continue;
+                        }
+                        sendMessage("数据库打开失败 \r\n<br/>\t" + dataBase[i] + "\r\n<br/>\t" + ex.ToString());
+                        isMessage[dataBase[i]] = false;
+                        ErrorLog.RecordExceptionToFile(ex);
+                    }
                 }
             }
             return;
