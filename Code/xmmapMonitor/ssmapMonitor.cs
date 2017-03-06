@@ -228,10 +228,19 @@ namespace xmmapMonitor
                 {
                     if (isMessage[webUrl[i]] == false || isMessageCount[webUrl[i]]>0)
                     {
-                        isMessageCount[webUrl[i]]--;
+                        isMessageCount[webUrl[i]] = isMessageCount[webUrl[i]] <= 0 ? 0 : isMessageCount[webUrl[i]]--;//防止int越界
                         continue;
                     }
-                    sendMessage("网站链接失败 \r\n<br/>\t" + webName[i] + "\r\n<br/>\t" + webUrl[i] + "\r\n<br/>\t" + ex.ToString());
+                    try
+                    {
+                        sendMessage("网站链接失败 \r\n<br/>\t" + webName[i] + "\r\n<br/>\t" + webUrl[i] + "\r\n<br/>\t" + ex.ToString());
+                    }
+                    catch (IndexOutOfRangeException ioorex)
+                    {
+                        sendMessage("网站链接失败 \r\n<br/>\t该网页未设定网页名\r\n<br/>\t" + webUrl[i] + "\r\n<br/>\t" + ex.ToString());
+                        ErrorLog.RecordExceptionToFile(ioorex);
+                    }
+                   
                     isMessage[webUrl[i]] = false;
                     ErrorLog.RecordExceptionToFile(ex);
                 }
@@ -260,7 +269,7 @@ namespace xmmapMonitor
                 {
                     if (isMessage[mapSourceLink[i]] == false || isMessageCount[mapSourceLink[i]] > 0)
                     {
-                        isMessageCount[mapSourceLink[i]]--;
+                        isMessageCount[mapSourceLink[i]]=isMessageCount[mapSourceLink[i]]<=0?0:isMessageCount[mapSourceLink[i]]--;//防止int越界
                         continue;
                     }
                     sendMessage("地图源链接失败 \r\n<br/>\t" + mapSourceLink[i] + "\r\n<br/>\t" + ex.ToString());
@@ -290,7 +299,7 @@ namespace xmmapMonitor
                 {
                     if (isMessage[dataBase[i]] == false || isMessageCount[dataBase[i]] > 0)
                     {
-                        isMessageCount[dataBase[i]]--;
+                        isMessageCount[dataBase[i]]=isMessageCount[dataBase[i]] <= 0 ? 0 : isMessageCount[dataBase[i]]--;//防止int越界
                         continue;
                     }
                     sendMessage("数据库打开失败 \r\n<br/>\t" + dataBase[i] + "\r\n<br/>\t" + ex.ToString());

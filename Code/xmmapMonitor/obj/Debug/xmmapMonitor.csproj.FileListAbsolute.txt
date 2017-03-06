@@ -13,4 +13,10 @@ E:\visualstudio2010Projects\xmmapMonitor\xmmapMonitor\obj\Debug\xmmapMonitor.Pro
 E:\visualstudio2010Projects\xmmapMonitor\xmmapMonitor\obj\Debug\xmmapMonitor.csproj.GenerateResource.Cache
 E:\visualstudio2010Projects\xmmapMonitor\xmmapMonitor\obj\Debug\xmmapMonitor.exe
 E:\visualstudio2010Projects\xmmapMonitor\xmmapMonitor\obj\Debug\xmmapMonitor.pdb
-E:\visualstudio2010Projects\xmmapMonitor\xmmapMonitor\obj\Debug\xmmapMonitor.csprojResolveAssemblyReference.cache
+E:\SVN\xmmap\trunk\webCode\Monitor\Code\xmmapMonitor\bin\Debug\xmmapMonitor.exe.config
+E:\SVN\xmmap\trunk\webCode\Monitor\Code\xmmapMonitor\obj\Debug\xmmapMonitor.exe
+E:\SVN\xmmap\trunk\webCode\Monitor\Code\xmmapMonitor\obj\Debug\xmmapMonitor.pdb
+E:\SVN\xmmap\trunk\webCode\Monitor\Code\xmmapMonitor\bin\Debug\xmmapMonitor.exe
+E:\SVN\xmmap\trunk\webCode\Monitor\Code\xmmapMonitor\bin\Debug\xmmapMonitor.pdb
+E:\SVN\xmmap\trunk\webCode\Monitor\Code\xmmapMonitor\obj\Debug\xmmapMonitor.ProjectInstaller.resources
+E:\SVN\xmmap\trunk\webCode\Monitor\Code\xmmapMonitor\obj\Debug\xmmapMonitor.csproj.GenerateResource.Cache
